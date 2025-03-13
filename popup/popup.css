@@ -42,7 +42,7 @@ h4 {
   padding: 7.2px 16px;
   margin: 8px auto;
   background-color: #9BA4B4; /* Новий основний колір */
-  color: #F1F6F9; /* Залишено попередній колір тексту */
+  color: #F1F6F9; /* Колір тексту */
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -89,7 +89,7 @@ h4 {
 
 .material-btn i {
   margin-right: 8px;
-  color: #F1F6F9; /* Залишено попередній колір іконок */
+  color: #F1F6F9; /* Колір іконок */
 }
 
 .button-container {

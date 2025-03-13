@@ -25,34 +25,34 @@ document.addEventListener('DOMContentLoaded', () => {
       const tabUrl = tabs[0].url;
 
       if (tabUrl.startsWith('chrome://') || tabUrl.startsWith('about:')) {
-        alert('ArtBrother cannot run on Chrome internal pages.');
+        alert('This extension cannot run on Chrome internal pages.');
         if (button) button.classList.remove('loading');
         return;
       }
 
-      // Безпосередня ін’єкція content script
-      console.log('Injecting content script into tab:', tabId);
-      chrome.scripting.executeScript({
-        target: {tabId: tabId},
-        files: ['content/content.js']
-      }, (results) => {
+      // Спроба відправити повідомлення
+      chrome.tabs.sendMessage(tabId, {action, ...data}, (response) => {
         if (chrome.runtime.lastError) {
-          console.error('Injection failed:', chrome.runtime.lastError.message);
-          alert('ArtBrother failed to analyze. Page may have restrictions. Please try refreshing or another site.');
-          if (button) button.classList.remove('loading');
+          console.warn('Content script not responding, injecting manually...');
+          chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            files: ['content/content.js']
+          }, () => {
+            if (chrome.runtime.lastError) {
+              console.error('Injection failed:', chrome.runtime.lastError.message);
+              alert('Analysis failed. Please refresh the page.');
+            } else {
+              setTimeout(() => {
+                chrome.tabs.sendMessage(tabId, {action, ...data}, (response) => {
+                  if (button) button.classList.remove('loading');
+                  if (response) console.log('Message sent successfully:', response);
+                });
+              }, 500);
+            }
+          });
         } else {
-          console.log('Content script injected successfully');
-          setTimeout(() => {
-            chrome.tabs.sendMessage(tabId, {action, ...data}, (response) => {
-              if (button) button.classList.remove('loading');
-              if (chrome.runtime.lastError) {
-                console.error('Message failed:', chrome.runtime.lastError.message);
-                alert('Analysis unavailable. Page may block extensions.');
-              } else {
-                console.log('Message sent successfully:', response);
-              }
-            });
-          }, 1000); // Затримка для стабільності
+          if (button) button.classList.remove('loading');
+          console.log('Message sent successfully:', response);
         }
       });
     });
@@ -81,29 +81,6 @@ chrome.runtime.onMessage.addListener((message) => {
       colorsRow.appendChild(swatch);
     });
     paletteDisplay.appendChild(colorsRow);
-
-    if (message.gradients && message.gradients.length > 0) {
-      const gradientsSection = document.createElement('div');
-      gradientsSection.className = 'gradients-section';
-      const gradientsTitle = document.createElement('h4');
-      gradientsTitle.textContent = 'Gradients';
-      gradientsSection.appendChild(gradientsTitle);
-      const gradientsRow = document.createElement('div');
-      gradientsRow.className = 'gradients-row';
-      message.gradients.forEach(gradient => {
-        const gradientDiv = document.createElement('div');
-        gradientDiv.className = 'gradient-swatch';
-        gradientDiv.style.background = `linear-gradient(to right, ${gradient.join(', ')})`;
-        gradientDiv.title = gradient.join(' -> ');
-        const gradientText = document.createElement('div');
-        gradientText.className = 'gradient-text';
-        gradientText.textContent = gradient.join(' -> ');
-        gradientDiv.appendChild(gradientText);
-        gradientsRow.appendChild(gradientDiv);
-      });
-      gradientsSection.appendChild(gradientsRow);
-      paletteDisplay.appendChild(gradientsSection);
-    }
   }
 
   if (message.action === 'displayFonts') {
