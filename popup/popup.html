@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Palette Analyzer</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <div class="card">
+    <h3>Color Picker</h3>
+    <div class="button-container">
+      <button id="pickColor" class="material-btn">
+        <i class="material-icons">colorize</i> Pick Color
+      </button>
+    </div>
+    <div>
+      <span id="currentColor" class="color-preview"></span>
+      <span id="colorCode" class="color-code">#000000</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Palette Analyzer</h3>
+    <div class="button-container">
+      <button id="analyzePalette" class="material-btn">
+        <i class="material-icons">palette</i> Analyze Page
+      </button>
+    </div>
+    <div id="paletteDisplay" class="palette-container"></div>
+    <div class="save-buttons">
+      <button id="saveTxt" class="material-btn small-btn">
+        <i class="material-icons">save</i> Save as TXT
+      </button>
+      <button id="savePng" class="material-btn small-btn">
+        <i class="material-icons">image</i> Save as PNG
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Fonts</h3>
+    <ul id="fontList" class="font-list"></ul>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
