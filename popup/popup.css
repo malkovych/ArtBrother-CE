@@ -183,3 +183,16 @@ h4 {
   color: #424242;
   font-size: 14px;
 }
+
+/* Нові стилі для повідомлення "copied" */
+.copied-message {
+  position: absolute;
+  background-color: #394867; /* Темний фон, як у кнопок при ховері */
+  color: #F1F6F9; /* Світлий текст, як у кнопок */
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 1000;
+}

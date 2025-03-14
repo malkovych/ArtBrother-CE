@@ -1,11 +1,50 @@
+// Функція для показу повідомлення "copied" (переміщена в глобальну область)
+function showCopiedMessage(element) {
+  const existingMessage = element.querySelector('.copied-message');
+  if (existingMessage) existingMessage.remove(); // Видаляємо попереднє повідомлення, якщо є
+
+  const message = document.createElement('span');
+  message.textContent = 'copied';
+  message.className = 'copied-message';
+  message.style.position = 'absolute';
+  message.style.backgroundColor = '#394867';
+  message.style.color = '#F1F6F9';
+  message.style.padding = '4px 8px';
+  message.style.borderRadius = '4px';
+  message.style.fontSize = '12px';
+  message.style.zIndex = '1000';
+
+  // Позиціонування залежно від елемента
+  const rect = element.getBoundingClientRect();
+  message.style.left = `${rect.width / 2 - 20}px`; // Центруємо горизонтально
+  message.style.top = `${rect.height + 5}px`; // Нижче елемента
+
+  element.style.position = 'relative'; // Для правильного позиціонування повідомлення
+  element.appendChild(message);
+
+  setTimeout(() => message.remove(), 1500); // Прибираємо через 1.5 секунди
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (window.EyeDropper) {
     const eyeDropper = new EyeDropper();
     document.getElementById('pickColor').addEventListener('click', async () => {
       try {
         const result = await eyeDropper.open();
-        document.getElementById('currentColor').style.backgroundColor = result.sRGBHex;
-        document.getElementById('colorCode').textContent = result.sRGBHex;
+        const currentColor = document.getElementById('currentColor');
+        const colorCode = document.getElementById('colorCode');
+        currentColor.style.backgroundColor = result.sRGBHex;
+        colorCode.textContent = result.sRGBHex;
+
+        // Копіювання коду кольору при кліку на currentColor
+        currentColor.addEventListener('click', () => {
+          navigator.clipboard.writeText(result.sRGBHex)
+            .then(() => {
+              console.log('Color copied to clipboard:', result.sRGBHex);
+              showCopiedMessage(currentColor);
+            })
+            .catch(err => console.error('Failed to copy color:', err));
+        }, { once: true }); // Обробник одноразовий, оновлюється при новому виборі
       } catch (e) {
         console.error('Color picker error:', e);
       }
@@ -30,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Безпосередня ін’єкція content script
       console.log('Injecting content script into tab:', tabId);
       chrome.scripting.executeScript({
         target: {tabId: tabId},
@@ -47,12 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
               if (button) button.classList.remove('loading');
               if (chrome.runtime.lastError) {
                 console.error('Message failed:', chrome.runtime.lastError.message);
-                alert('Analysis unavailable. Page may block extensions.');
+                alert('Action unavailable. Page may block extensions.');
               } else {
                 console.log('Message sent successfully:', response);
               }
             });
-          }, 1000); // Затримка для стабільності
+          }, 1000);
         }
       });
     });
@@ -78,6 +116,15 @@ chrome.runtime.onMessage.addListener((message) => {
       swatch.className = 'color-swatch';
       swatch.style.backgroundColor = color;
       swatch.title = color;
+      // Копіювання коду кольору при кліку на swatch
+      swatch.addEventListener('click', () => {
+        navigator.clipboard.writeText(color)
+          .then(() => {
+            console.log('Color copied to clipboard:', color);
+            showCopiedMessage(swatch);
+          })
+          .catch(err => console.error('Failed to copy color:', err));
+      });
       colorsRow.appendChild(swatch);
     });
     paletteDisplay.appendChild(colorsRow);

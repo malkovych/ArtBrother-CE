@@ -1,7 +1,16 @@
+let lastSaveTime = 0; // Зберігається в background script
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'download') {
+    const currentTime = Date.now();
+    if (currentTime - lastSaveTime < 1000) { // Запобігаємо збереженню частіше, ніж раз на секунду
+      console.log('Download request ignored: too frequent');
+      return;
+    }
+    lastSaveTime = currentTime;
+
     chrome.downloads.download({
-      url: message.content,
+      url: message.url,
       filename: message.filename,
       saveAs: true
     }, (downloadId) => {
